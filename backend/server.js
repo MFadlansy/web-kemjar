@@ -7,13 +7,28 @@ const bcrypt = require('bcrypt');
 const NodeRSA = require('node-rsa');
 const crypto = require('crypto'); // Modul crypto bawaan Node.js untuk AES
 const cors = require('cors');
+const path = require('path'); // <<< TAMBAHAN: Import modul 'path'
 
 const app = express();
 const port = 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('frontend'));
+
+// --- BAGIAN PENTING UNTUK MELAYANI FRONTEND ---
+// Konfigurasi Express untuk menyajikan file statis dari direktori 'frontend'.
+// `path.join(__dirname, '../frontend')` akan membuat jalur absolut ke folder frontend.
+// Ini berasumsi folder 'frontend' berada satu level di atas folder 'backend' (tempat server.js berada).
+// Jika folder 'frontend' berada di dalam folder 'backend', gunakan `path.join(__dirname, 'frontend')`.
+app.use(express.static(path.join(__dirname, '../frontend'))); // <<< MODIFIKASI: Menggunakan path.join
+
+// Rute default untuk menyajikan halaman login atau dashboard.
+// Saat Anda mengakses URL root (`/`), server akan mengirimkan login.html.
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/login.html')); // <<< MODIFIKASI: Menggunakan path.join
+});
+// ---------------------------------------------
+
 
 // Konfigurasi Database (sesuaikan dengan setup Anda)
 const dbConfig = {
@@ -89,7 +104,7 @@ async function authenticateToken(req, res, next) {
 
     try {
         const [rows] = await pool.query('SELECT id, username, private_rsa_key, aes_key FROM users WHERE username = ?', [token]);
-        
+
         if (rows.length === 0) {
             console.log('User not found for token:', token);
             return res.status(403).json({ message: 'Invalid token' });
@@ -379,16 +394,24 @@ app.put('/api/data/:id', authenticateToken, async (req, res) => {
     }
 });
 
-app.delete('/api/data/:id', async (req, res) => { // Perlu middleware authenticateToken juga
+app.delete('/api/data/:id', authenticateToken, async (req, res) => { // <<< MODIFIKASI: Tambah authenticateToken
     const { id } = req.params;
+    const userId = req.user.id; // Mendapatkan user ID dari token
+
     try {
-        await pool.query('DELETE FROM encrypted_data WHERE id = ?', [id]);
+        // Penting: Pastikan hanya pengguna yang memiliki data yang dapat menghapusnya
+        const [result] = await pool.query('DELETE FROM encrypted_data WHERE id = ? AND user_id = ?', [id, userId]);
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Data not found or not authorized to delete.' });
+        }
         res.sendStatus(200);
     } catch (err) {
         console.error('Delete error:', err);
         res.status(500).send('Error deleting data');
     }
 });
+
 
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
