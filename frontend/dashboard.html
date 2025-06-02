@@ -1,152 +1,465 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Kesehatan</title>
     <style>
         body {
-            display: flex;
-        }
-
-        nav {
-            width: 200px;
-            padding: 10px;
-            background: #eee;
-        }
-
-        section {
-            flex: 1;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
             padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Untuk menyatukan link dan tombol logout */
+        .nav-links a {
+            text-decoration: none;
+            color: #007bff;
+            margin-right: 20px;
+            font-weight: bold;
+        }
+
+        /* Margin right */
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .logout-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background-color: #c82333;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            flex: 1 1 calc(50% - 20px);
+            min-width: 300px;
+        }
+
+        .card h3 {
+            color: #34495e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: bold;
+        }
+
+        input[type="date"],
+        select,
+        textarea,
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            margin-top: 15px;
+            color: red;
+            text-align: center;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .record-list {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #fcfcfc;
+        }
+
+        .record-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .record-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .record-item strong {
+            color: #555;
+        }
+
+        .record-item p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .record-item span {
+            font-size: 0.9em;
+            color: #888;
         }
     </style>
 </head>
 
 <body>
-    <nav>
-        <h3>Menu</h3>
-        <ul>
-            <li><a href="#" onclick="showPage('input')">Input Data</a></li>
-            <li><a href="#" onclick="showPage('profile')">Profil</a></li>
-            <li><a href="#" onclick="logout()">Logout</a></li>
-        </ul>
-    </nav>
+    <div class="header">
+        <h1>Dashboard Kesehatan Pengguna</h1>
+        <div class="nav-links">
+            <a href="profile.html">Profil Saya</a>
+            <button id="logoutButton" class="logout-button">Logout</button>
+        </div>
+    </div>
 
-    <section id="main">
-        <div id="inputPage">
-            <h2>Input Data</h2>
-            <textarea id="dataInput" placeholder="Masukkan data..."></textarea><br>
-            <button onclick="saveData()">Simpan</button>
-
-            <h3>Lihat Data</h3>
-            <input type="text" id="viewKey" placeholder="Masukkan AES Key"><br>
-            <button onclick="loadData()">Tampilkan Data</button>
-            <pre id="output"></pre>
+    <div class="container">
+        <div class="card aes-key-input-card">
+            <h3>Masukkan Kode AES untuk Melihat Catatan</h3>
+            <form id="aesKeyForm">
+                <label for="inputAesKey">Kode AES (dari halaman profil):</label>
+                <input type="text" id="inputAesKey" name="inputAesKey" placeholder="Tempel kode AES Anda di sini"
+                    required>
+                <button type="submit" id="loadRecordsButton">Muat Catatan Kesehatan</button>
+                <div id="aesKeyMessage" class="message"></div>
+            </form>
         </div>
 
-        <div id="profilePage" style="display:none">
-            <h2>Profil</h2>
-            <p><strong>Username:</strong> <span id="profileUsername"></span></p>
-            <p><strong>Password:</strong> <span id="profilePassword"></span></p>
-            <p><strong>AES Key:</strong> <span id="profileKey"></span></p>
+        <div class="card add-record-card">
+            <h3>Tambahkan Catatan Kesehatan Baru</h3>
+            <form id="addRecordForm">
+                <label for="recordDate">Tanggal:</label>
+                <input type="date" id="recordDate" name="recordDate" required>
+
+                <label for="recordType">Jenis Catatan:</label>
+                <select id="recordType" name="recordType" required>
+                    <option value="">Pilih Jenis</option>
+                    <option value="Kunjungan Dokter">Kunjungan Dokter</option>
+                    <option value="Hasil Lab">Hasil Lab</option>
+                    <option value="Resep Obat">Resep Obat</option>
+                    <option value="Kondisi Medis">Kondisi Medis</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+
+                <label for="details">Detail Catatan:</label>
+                <textarea id="details" name="details" placeholder="Tulis detail catatan kesehatan di sini..."
+                    required></textarea>
+
+                <button type="submit">Simpan Catatan</button>
+                <div id="addRecordMessage" class="message"></div>
+            </form>
         </div>
-    </section>
+
+        <div class="card view-records-card">
+            <h3>Catatan Kesehatan Anda</h3>
+            <div id="healthRecordsList" class="record-list">
+                <p>Silakan masukkan kode AES Anda di atas dan klik "Muat Catatan Kesehatan".</p>
+            </div>
+            <div id="viewRecordsMessage" class="message"></div>
+        </div>
+    </div>
 
     <script>
-        const userId = localStorage.getItem('userId');
-        const aesKey = localStorage.getItem('aesKey');
-        const username = localStorage.getItem('username');
-        const password = localStorage.getItem('password');
+        const API_BASE_URL = 'http://localhost:3000/api';
 
-        if (!userId || !aesKey) {
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('user_id');
+
+        if (!token || !userId) {
             window.location.href = 'login.html';
         }
 
-        function showPage(page) {
-            document.getElementById('inputPage').style.display = (page === 'input') ? 'block' : 'none';
-            document.getElementById('profilePage').style.display = (page === 'profile') ? 'block' : 'none';
-            if (page === 'profile') {
-                document.getElementById('profileUsername').textContent = username;
-                document.getElementById('profilePassword').textContent = password;
-                document.getElementById('profileKey').textContent = aesKey;
+        let currentAesCryptoKey; // Kunci AES yang aktif untuk enkripsi/dekripsi
+
+        // Fungsi utilitas untuk konversi ArrayBuffer ke Hex String
+        function arrayBufferToHex(buffer) {
+            return Array.from(new Uint8Array(buffer))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+
+        // Fungsi utilitas untuk konversi Hex String ke ArrayBuffer
+        function hexToArrayBuffer(hexString) {
+            const bytes = new Uint8Array(hexString.length / 2);
+            for (let i = 0; i < hexString.length; i += 2) {
+                bytes[i / 2] = parseInt(hexString.substr(i, 2), 16);
+            }
+            return bytes.buffer;
+        }
+
+        // Konversi Hex AES Key ke CryptoKey untuk Web Crypto API
+        async function getCryptoKey(aesKeyHex) {
+            if (typeof aesKeyHex !== 'string' || aesKeyHex.length !== 64) {
+                throw new Error('Invalid AES key format. Must be 64 hex characters.');
+            }
+            const keyBuffer = hexToArrayBuffer(aesKeyHex);
+            return await crypto.subtle.importKey(
+                'raw',
+                keyBuffer,
+                { name: 'AES-CBC' },
+                false, // not exportable
+                ['encrypt', 'decrypt']
+            );
+        }
+
+        // Fungsi enkripsi di frontend menggunakan Web Crypto API
+        async function encryptData(data, aesCryptoKey) {
+            if (!aesCryptoKey) throw new Error('AES key not loaded for encryption.');
+            const iv = crypto.getRandomValues(new Uint8Array(16)); // 16 bytes IV
+            const encoded = new TextEncoder().encode(data);
+            const encryptedBuffer = await crypto.subtle.encrypt(
+                { name: 'AES-CBC', iv: iv },
+                aesCryptoKey,
+                encoded
+            );
+            return arrayBufferToHex(iv) + ':' + arrayBufferToHex(encryptedBuffer);
+        }
+
+        // Fungsi dekripsi di frontend menggunakan Web Crypto API
+        async function decryptData(encryptedData, aesCryptoKey) {
+            if (!aesCryptoKey) throw new Error('AES key not loaded for decryption.');
+            if (typeof encryptedData !== 'string' || !encryptedData.includes(':')) {
+                console.warn('Attempted to decrypt non-string or invalid format data:', encryptedData);
+                return '[Data tidak valid atau kosong untuk dekripsi]';
+            }
+            const parts = encryptedData.split(':');
+            if (parts.length !== 2) {
+                console.warn('Invalid encrypted data format, expected IV:encryptedData. Data:', encryptedData);
+                return '[Format Data Terenkripsi Tidak Valid]';
+            }
+            const iv = hexToArrayBuffer(parts[0]);
+            const encryptedBuffer = hexToArrayBuffer(parts[1]);
+
+            try {
+                const decryptedBuffer = await crypto.subtle.decrypt(
+                    { name: 'AES-CBC', iv: new Uint8Array(iv) },
+                    aesCryptoKey,
+                    new Uint8Array(encryptedBuffer)
+                );
+                return new TextDecoder().decode(decryptedBuffer);
+            } catch (error) {
+                console.error('Decryption failed:', error);
+                return '[Gagal Dekripsi Data]';
             }
         }
 
-        async function saveData() {
-            const data = document.getElementById('dataInput').value;
-            const res = await fetch('http://localhost:3000/api/data', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, data, aesKey })
-            });
-            alert(res.ok ? 'Data disimpan' : 'Gagal simpan data');
-        }
+        // Event Listener untuk tombol logout
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('aes_key'); // Hapus juga aes_key dari localStorage
+            window.location.href = 'login.html';
+        });
 
-        async function loadData() {
-            const inputKey = document.getElementById('viewKey').value;
-            if (!inputKey) {
-                alert("Masukkan AES Key terlebih dahulu!");
+        // Handle form submit untuk MEMUAT catatan kesehatan
+        document.getElementById('aesKeyForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const inputAesKey = document.getElementById('inputAesKey').value.trim();
+            const aesKeyMessageDiv = document.getElementById('aesKeyMessage');
+
+            if (!inputAesKey) {
+                aesKeyMessageDiv.className = 'message';
+                aesKeyMessageDiv.textContent = 'Kode AES tidak boleh kosong.';
+                return;
+            }
+            if (inputAesKey.length !== 64) {
+                aesKeyMessageDiv.className = 'message';
+                aesKeyMessageDiv.textContent = 'Kode AES tidak valid (harus 64 karakter heksadesimal).';
                 return;
             }
 
-            const res = await fetch('http://localhost:3000/api/load', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, aesKey: inputKey })
-            });
+            try {
+                currentAesCryptoKey = await getCryptoKey(inputAesKey);
+                localStorage.setItem('aes_key', inputAesKey); // Update localStorage dengan kunci yang diinput
+                aesKeyMessageDiv.className = 'message success';
+                aesKeyMessageDiv.textContent = 'Kunci AES berhasil dimuat. Memuat catatan...';
+                fetchHealthRecords(currentAesCryptoKey); // Muat catatan dengan kunci yang baru
+            } catch (error) {
+                console.error('Error loading AES key:', error);
+                aesKeyMessageDiv.className = 'message';
+                aesKeyMessageDiv.textContent = 'Gagal memuat kunci AES. Pastikan formatnya benar.';
+                document.getElementById('healthRecordsList').innerHTML = '<p>Silakan masukkan kode AES Anda di atas dan klik "Muat Catatan Kesehatan".</p>';
+            }
+        });
 
-            if (res.ok) {
-                const result = await res.json();
-                const container = document.getElementById('output');
-                container.innerHTML = '';
 
-                result.forEach(item => {
-                    const div = document.createElement('div');
-                    div.innerHTML = `
-                <textarea data-id="${item.id}">${item.data}</textarea><br>
-                <button onclick="updateData(${item.id})">Update</button>
-                <button onclick="deleteData(${item.id})">Hapus</button>
-                <hr>
-            `;
-                    container.appendChild(div);
+        // Handle form submit untuk MENAMBAH catatan kesehatan
+        document.getElementById('addRecordForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const recordDate = document.getElementById('recordDate').value;
+            const recordType = document.getElementById('recordType').value;
+            const details = document.getElementById('details').value;
+            const addRecordMessageDiv = document.getElementById('addRecordMessage');
+
+            if (!currentAesCryptoKey) {
+                addRecordMessageDiv.className = 'message';
+                addRecordMessageDiv.textContent = 'Silakan masukkan kode AES Anda terlebih dahulu untuk bisa menyimpan catatan.';
+                return;
+            }
+
+            try {
+                const encryptedDetails = await encryptData(details, currentAesCryptoKey);
+
+                const response = await fetch(`${API_BASE_URL}/health-records`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        record_date: recordDate,
+                        record_type: recordType,
+                        details: encryptedDetails
+                    })
                 });
-            } else {
-                alert('Gagal menampilkan data. AES Key mungkin salah.');
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    addRecordMessageDiv.className = 'message success';
+                    addRecordMessageDiv.textContent = data.message;
+                    document.getElementById('addRecordForm').reset();
+                    fetchHealthRecords(currentAesCryptoKey);
+                } else {
+                    addRecordMessageDiv.className = 'message';
+                    addRecordMessageDiv.textContent = data.message || 'Gagal menambahkan catatan.';
+                }
+            } catch (error) {
+                console.error('Error adding health record:', error);
+                addRecordMessageDiv.className = 'message';
+                addRecordMessageDiv.textContent = 'Kesalahan jaringan atau server tidak tersedia.';
+            }
+        });
+
+        // Fungsi untuk mengambil dan menampilkan catatan kesehatan
+        async function fetchHealthRecords(aesCryptoKey) {
+            const healthRecordsList = document.getElementById('healthRecordsList');
+            const viewRecordsMessageDiv = document.getElementById('viewRecordsMessage');
+            healthRecordsList.innerHTML = '<p>Memuat catatan...</p>';
+            viewRecordsMessageDiv.textContent = '';
+
+            if (!aesCryptoKey) {
+                healthRecordsList.innerHTML = '<p>Silakan masukkan kode AES Anda di atas dan klik "Muat Catatan Kesehatan".</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/health-records`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const records = await response.json();
+
+                if (response.ok) {
+                    healthRecordsList.innerHTML = '';
+                    if (records.length === 0) {
+                        healthRecordsList.innerHTML = '<p>Belum ada catatan kesehatan.</p>';
+                    } else {
+                        for (const record of records) {
+                            const recordItem = document.createElement('div');
+                            recordItem.className = 'record-item';
+                            const decryptedDetails = await decryptData(record.encrypted_details, aesCryptoKey);
+                            recordItem.innerHTML = `
+                                <p><strong>Tanggal:</strong> ${record.record_date}</p>
+                                <p><strong>Jenis:</strong> ${record.record_type}</p>
+                                <p><strong>Detail:</strong> ${decryptedDetails}</p>
+                                <span>Disimpan pada: ${new Date(record.created_at).toLocaleString()}</span>
+                            `;
+                            healthRecordsList.appendChild(recordItem);
+                        }
+                    }
+                } else {
+                    healthRecordsList.innerHTML = '';
+                    viewRecordsMessageDiv.className = 'message';
+                    viewRecordsMessageDiv.textContent = records.message || 'Gagal memuat catatan.';
+                }
+            } catch (error) {
+                console.error('Error fetching health records:', error);
+                healthRecordsList.innerHTML = '';
+                viewRecordsMessageDiv.className = 'message';
+                viewRecordsMessageDiv.textContent = 'Kesalahan jaringan atau server tidak tersedia. Catatan tidak dapat dimuat.';
             }
         }
 
-        async function updateData(id) {
-            const textarea = document.querySelector(`textarea[data-id="${id}"]`);
-            const data = textarea.value;
-
-            const res = await fetch(`http://localhost:3000/api/data/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ data, aesKey })
-            });
-
-            alert(res.ok ? 'Data diperbarui' : 'Gagal memperbarui data');
-        }
-
-        async function deleteData(id) {
-            if (!confirm("Yakin ingin menghapus data ini?")) return;
-
-            const res = await fetch(`http://localhost:3000/api/data/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (res.ok) {
-                alert('Data dihapus');
-                loadData(); // refresh data
-            } else {
-                alert('Gagal menghapus data');
+        // Panggil fungsi untuk mengisi input AES key dari localStorage (jika ada) saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedAesKey = localStorage.getItem('aes_key');
+            if (storedAesKey) {
+                // document.getElementById('inputAesKey').value = storedAesKey;
+                // Kunci tidak akan dimuat otomatis. Pengguna harus mengklik tombol "Muat Catatan Kesehatan".
             }
-        }
-
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
+        });
     </script>
 </body>
 

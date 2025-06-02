@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Pengguna</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #007bff;
+            margin-left: 20px;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        h2 {
+            color: #34495e;
+            margin-bottom: 25px;
+        }
+
+        .profile-info p {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        .profile-info strong {
+            color: #2c3e50;
+        }
+
+        .aes-key-display {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            word-break: break-all;
+            text-align: left;
+        }
+
+        .aes-key-display strong {
+            display: block;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .message {
+            margin-top: 15px;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Profil Pengguna</h1>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Informasi Akun Anda</h2>
+        <div class="profile-info">
+            <p><strong>Username:</strong> <span id="profileUsername">Memuat...</span></p>
+            <div class="aes-key-display">
+                <strong>Kode AES Anda (Untuk Tujuan Pembelajaran):</strong>
+                <span id="profileAesKey">Memuat...</span>
+            </div>
+        </div>
+        <div id="profileMessage" class="message"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('user_id'); // Tidak langsung digunakan, tapi baik untuk konsistensi
+
+        if (!token || !userId) {
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const profileUsernameSpan = document.getElementById('profileUsername');
+            const profileAesKeySpan = document.getElementById('profileAesKey');
+            const profileMessageDiv = document.getElementById('profileMessage');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    profileUsernameSpan.textContent = data.username;
+                    profileAesKeySpan.textContent = data.aes_key;
+                } else {
+                    profileMessageDiv.textContent = data.message || 'Gagal memuat profil.';
+                    profileUsernameSpan.textContent = 'Tidak tersedia';
+                    profileAesKeySpan.textContent = 'Tidak tersedia';
+                }
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+                profileMessageDiv.textContent = 'Terjadi kesalahan jaringan atau server tidak tersedia.';
+                profileUsernameSpan.textContent = 'Tidak tersedia';
+                profileAesKeySpan.textContent = 'Tidak tersedia';
+            }
+        });
+    </script>
+</body>
+
+</html>
