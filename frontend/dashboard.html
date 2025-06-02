@@ -228,7 +228,8 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://localhost:3000/api';
+        // *** PERUBAHAN DI SINI: Gunakan jalur relatif untuk API_BASE_URL ***
+        const API_BASE_URL = '/api'; // Cukup '/api'
 
         const token = localStorage.getItem('token');
         const userId = localStorage.getItem('user_id');
@@ -368,6 +369,7 @@
             try {
                 const encryptedDetails = await encryptData(details, currentAesCryptoKey);
 
+                // *** PERUBAHAN DI SINI: Gunakan API_BASE_URL yang sudah relatif ***
                 const response = await fetch(`${API_BASE_URL}/health-records`, {
                     method: 'POST',
                     headers: {
@@ -412,6 +414,7 @@
             }
 
             try {
+                // *** PERUBAHAN DI SINI: Gunakan API_BASE_URL yang sudah relatif ***
                 const response = await fetch(`${API_BASE_URL}/health-records`, {
                     method: 'GET',
                     headers: {
@@ -456,7 +459,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const storedAesKey = localStorage.getItem('aes_key');
             if (storedAesKey) {
-                // document.getElementById('inputAesKey').value = storedAesKey;
+                // document.getElementById('inputAesKey').value = storedAesKey; // Ini bisa diaktifkan jika ingin key langsung muncul di input
                 // Kunci tidak akan dimuat otomatis. Pengguna harus mengklik tombol "Muat Catatan Kesehatan".
             }
         });

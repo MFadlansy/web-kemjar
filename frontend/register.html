@@ -113,8 +113,8 @@
             const messageDiv = document.getElementById('message');
 
             try {
-                // *** PERUBAHAN DI SINI: Tambahkan /api/ ke URL ***
-                const response = await fetch('http://localhost:3000/api/register', {
+                // *** PERUBAHAN DI SINI: Gunakan jalur relatif untuk URL API ***
+                const response = await fetch('/api/register', { // HANYA /api/register
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
